@@ -8,11 +8,12 @@ def get_user_by_id(db: Session, user_id: int) -> User | None:
 
 
 def get_user_by_email(db: Session, email: str) -> User | None:
-    return db.query(User).filter(User.email == email).first()
+    normalized_email = email.strip().lower()
+    return db.query(User).filter(User.email == normalized_email).first()
 
 
 def create_user(db: Session, email: str, name: str, password_hash: str) -> User:
-    user = User(email=email, name=name, password_hash=password_hash)
+    user = User(email=email.strip().lower(), name=name.strip(), password_hash=password_hash)
     db.add(user)
     db.commit()
     db.refresh(user)

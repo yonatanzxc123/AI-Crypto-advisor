@@ -1,3 +1,7 @@
+import os
+
+os.environ["DATABASE_URL"] = "sqlite://"
+
 from app.db.models import Feedback, Preference, User
 
 

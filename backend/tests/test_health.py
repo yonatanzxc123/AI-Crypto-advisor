@@ -1,3 +1,7 @@
+import os
+
+os.environ["DATABASE_URL"] = "sqlite://"
+
 from fastapi.testclient import TestClient
 
 from app.main import app
