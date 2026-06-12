@@ -27,3 +27,8 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
+
+def init_db() -> None:
+    from app.db import models  # Import models before creating tables.
+
+    Base.metadata.create_all(bind=engine)
