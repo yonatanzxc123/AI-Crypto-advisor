@@ -8,6 +8,7 @@ from app.core.config import settings
 from app.db.database import init_db
 from app.routers.auth_router import router as auth_router
 from app.routers.dashboard_router import router as dashboard_router
+from app.routers.feedback_router import router as feedback_router
 from app.routers.health_router import router as health_router
 from app.routers.onboarding_router import router as onboarding_router
 
@@ -32,3 +33,4 @@ app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(onboarding_router)
 app.include_router(dashboard_router)
+app.include_router(feedback_router)
