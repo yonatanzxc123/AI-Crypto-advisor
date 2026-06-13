@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getMyOnboardingPreferences, saveOnboardingPreferences } from "../api/onboardingApi.js";
+import CheckboxGroup from "../components/CheckboxGroup.jsx";
 import ErrorMessage from "../components/ErrorMessage.jsx";
 import LoadingMessage from "../components/LoadingMessage.jsx";
 import {
@@ -63,9 +64,33 @@ export default function Onboarding() {
     setSelectedValues([...selectedValues, value]);
   }
 
+  function validateSelections() {
+    if (assets.length === 0) {
+      return "Choose at least one crypto asset.";
+    }
+
+    if (!investorType) {
+      return "Choose an investor type.";
+    }
+
+    if (contentTypes.length === 0) {
+      return "Choose at least one content type.";
+    }
+
+    return "";
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
     setError("");
+
+    const validationError = validateSelections();
+
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -98,23 +123,17 @@ export default function Onboarding() {
   return (
     <section className="content-panel">
       <h1>{hasExistingPreferences ? "Edit Preferences" : "Onboarding"}</h1>
+      <p className="page-intro">
+        These preferences personalize your daily prices, news, insight, and meme.
+      </p>
       <ErrorMessage message={error} />
       <form className="form-grid" onSubmit={handleSubmit}>
-        <fieldset>
-          <legend>Crypto assets</legend>
-          <div className="option-grid">
-            {ASSET_OPTIONS.map((asset) => (
-              <label className="checkbox-option" key={asset.value}>
-                <input
-                  type="checkbox"
-                  checked={assets.includes(asset.value)}
-                  onChange={() => toggleValue(asset.value, assets, setAssets)}
-                />
-                {asset.label}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <CheckboxGroup
+          legend="Crypto assets"
+          options={ASSET_OPTIONS}
+          selectedValues={assets}
+          onToggle={(value) => toggleValue(value, assets, setAssets)}
+        />
 
         <label>
           Investor type
@@ -127,21 +146,12 @@ export default function Onboarding() {
           </select>
         </label>
 
-        <fieldset>
-          <legend>Content types</legend>
-          <div className="option-grid">
-            {CONTENT_TYPE_OPTIONS.map((type) => (
-              <label className="checkbox-option" key={type}>
-                <input
-                  type="checkbox"
-                  checked={contentTypes.includes(type)}
-                  onChange={() => toggleValue(type, contentTypes, setContentTypes)}
-                />
-                {type}
-              </label>
-            ))}
-          </div>
-        </fieldset>
+        <CheckboxGroup
+          legend="Content types"
+          options={CONTENT_TYPE_OPTIONS}
+          selectedValues={contentTypes}
+          onToggle={(value) => toggleValue(value, contentTypes, setContentTypes)}
+        />
 
         <button className="primary-button" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : submitButtonText}

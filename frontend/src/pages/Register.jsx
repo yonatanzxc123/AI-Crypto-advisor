@@ -38,11 +38,18 @@ export default function Register() {
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Name
-          <input name="name" value={form.name} onChange={updateField} required />
+          <input name="name" value={form.name} autoComplete="name" onChange={updateField} required />
         </label>
         <label>
           Email
-          <input name="email" type="email" value={form.email} onChange={updateField} required />
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            autoComplete="email"
+            onChange={updateField}
+            required
+          />
         </label>
         <label>
           Password
@@ -51,6 +58,7 @@ export default function Register() {
             type="password"
             minLength="8"
             value={form.password}
+            autoComplete="new-password"
             onChange={updateField}
             required
           />

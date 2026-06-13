@@ -3,5 +3,9 @@ export default function ErrorMessage({ message }) {
     return null;
   }
 
-  return <div className="error-message">{message}</div>;
+  return (
+    <div className="error-message" role="alert">
+      {message}
+    </div>
+  );
 }

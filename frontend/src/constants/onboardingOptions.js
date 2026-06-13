@@ -1,3 +1,4 @@
+// Future improvement: support CoinGecko coin search and historical charts.
 export const ASSET_OPTIONS = [
   { value: "bitcoin", label: "Bitcoin" },
   { value: "ethereum", label: "Ethereum" },
@@ -9,8 +10,8 @@ export const ASSET_OPTIONS = [
 export const INVESTOR_TYPES = ["HODLer", "Day Trader", "NFT Collector", "Beginner"];
 
 export const CONTENT_TYPE_OPTIONS = [
-  "Market News",
-  "Coin Prices",
-  "AI Insight",
-  "Fun",
+  { value: "Market News", label: "Market News" },
+  { value: "Coin Prices", label: "Coin Prices" },
+  { value: "AI Insight", label: "AI Insight" },
+  { value: "Fun", label: "Fun" },
 ];

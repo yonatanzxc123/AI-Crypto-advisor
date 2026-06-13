@@ -34,16 +34,34 @@ export default function Login() {
   return (
     <section className="auth-panel">
       <h1>Login</h1>
-      {location.state?.message ? <div className="success-message">{location.state.message}</div> : null}
+      {location.state?.message ? (
+        <div className="success-message" role="status">
+          {location.state.message}
+        </div>
+      ) : null}
       <ErrorMessage message={error} />
       <form className="form-grid" onSubmit={handleSubmit}>
         <label>
           Email
-          <input name="email" type="email" value={form.email} onChange={updateField} required />
+          <input
+            name="email"
+            type="email"
+            value={form.email}
+            autoComplete="email"
+            onChange={updateField}
+            required
+          />
         </label>
         <label>
           Password
-          <input name="password" type="password" value={form.password} onChange={updateField} required />
+          <input
+            name="password"
+            type="password"
+            value={form.password}
+            autoComplete="current-password"
+            onChange={updateField}
+            required
+          />
         </label>
         <button className="primary-button" type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Logging in..." : "Login"}

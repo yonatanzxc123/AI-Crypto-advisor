@@ -11,6 +11,13 @@ import NewsList from "../components/NewsList.jsx";
 import PriceList from "../components/PriceList.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 
+const CONTENT_TYPES = {
+  prices: "Coin Prices",
+  news: "Market News",
+  aiInsight: "AI Insight",
+  fun: "Fun",
+};
+
 export default function Dashboard() {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -66,6 +73,13 @@ export default function Dashboard() {
     return <ErrorMessage message={error || "Dashboard is unavailable."} />;
   }
 
+  const selectedContentTypes = dashboard.profile.content_types || [];
+  const showPrices = selectedContentTypes.includes(CONTENT_TYPES.prices);
+  const showNews = selectedContentTypes.includes(CONTENT_TYPES.news);
+  const showAiInsight = selectedContentTypes.includes(CONTENT_TYPES.aiInsight);
+  const showMeme = selectedContentTypes.includes(CONTENT_TYPES.fun);
+  const hasVisibleSections = showPrices || showNews || showAiInsight || showMeme;
+
   return (
     <div className="dashboard-page">
       <section className="dashboard-summary">
@@ -97,12 +111,24 @@ export default function Dashboard() {
 
       <ErrorMessage message={error} />
 
-      <div className="dashboard-grid">
-        <PriceList prices={dashboard.prices} onVote={handleVote} />
-        <NewsList news={dashboard.news} onVote={handleVote} />
-        <AiInsightCard insight={dashboard.ai_insight} onVote={handleVote} />
-        <MemeCard meme={dashboard.meme} onVote={handleVote} />
-      </div>
+      {hasVisibleSections ? (
+        <div className="dashboard-grid">
+          {showPrices ? <PriceList prices={dashboard.prices} onVote={handleVote} /> : null}
+          {showNews ? <NewsList news={dashboard.news} onVote={handleVote} /> : null}
+          {showAiInsight ? (
+            <AiInsightCard insight={dashboard.ai_insight} onVote={handleVote} />
+          ) : null}
+          {showMeme ? <MemeCard meme={dashboard.meme} onVote={handleVote} /> : null}
+        </div>
+      ) : (
+        <section className="empty-dashboard">
+          <h2>No dashboard sections selected</h2>
+          <p>No dashboard sections selected. Edit your preferences to choose content types.</p>
+          <button className="primary-button" type="button" onClick={() => navigate("/onboarding")}>
+            Edit Preferences
+          </button>
+        </section>
+      )}
 
       <p className="disclaimer">Educational content only. Not financial advice.</p>
     </div>

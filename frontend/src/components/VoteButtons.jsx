@@ -3,24 +3,28 @@ import { useState } from "react";
 
 export default function VoteButtons({ sectionType, itemKey, onVote }) {
   const [status, setStatus] = useState("");
+  const [statusType, setStatusType] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleVote(vote) {
     setIsSubmitting(true);
     setStatus("");
+    setStatusType("");
 
     try {
       await onVote({ section_type: sectionType, item_key: itemKey, vote });
       setStatus("Saved");
+      setStatusType("success");
     } catch (error) {
       setStatus(error.message || "Vote failed");
+      setStatusType("error");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <div className="vote-control">
+    <div className="vote-control" aria-busy={isSubmitting}>
       <button
         className="icon-button"
         type="button"
@@ -41,7 +45,11 @@ export default function VoteButtons({ sectionType, itemKey, onVote }) {
       >
         <ThumbsDown size={17} aria-hidden="true" />
       </button>
-      {status ? <span className="vote-status">{status}</span> : null}
+      {status ? (
+        <span className={`vote-status ${statusType}`} role="status" aria-live="polite">
+          {status}
+        </span>
+      ) : null}
     </div>
   );
 }
