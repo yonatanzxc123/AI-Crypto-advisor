@@ -21,3 +21,9 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db

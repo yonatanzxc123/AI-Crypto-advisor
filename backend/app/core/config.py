@@ -20,6 +20,17 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY", "local-development-secret-change-me")
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = _get_int_env("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
+    EXTERNAL_API_TIMEOUT_SECONDS: int = _get_int_env("EXTERNAL_API_TIMEOUT_SECONDS", 5)
+    COINGECKO_SIMPLE_PRICE_URL: str = os.getenv(
+        "COINGECKO_SIMPLE_PRICE_URL",
+        "https://api.coingecko.com/api/v3/simple/price",
+    )
+    OPENROUTER_API_KEY: str = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "openrouter/free")
+    OPENROUTER_CHAT_URL: str = os.getenv(
+        "OPENROUTER_CHAT_URL",
+        "https://openrouter.ai/api/v1/chat/completions",
+    )
     BACKEND_CORS_ORIGINS: list[str] = [
         origin.strip()
         for origin in os.getenv(
