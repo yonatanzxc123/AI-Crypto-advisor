@@ -10,9 +10,7 @@ export default function NewsList({ news, onVote }) {
             <div>
               <h3>{item.title}</h3>
               <p>{item.summary}</p>
-              <a href={item.url} target="_blank" rel="noreferrer">
-                {item.source}
-              </a>
+              <span className="source-badge">{item.source}</span>
             </div>
             <VoteButtons sectionType="news" itemKey={item.item_key} onVote={onVote} />
           </article>

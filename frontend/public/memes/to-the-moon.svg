@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title id="title">To the moon refresh meme</title>
+  <desc id="desc">A rocket labeled refresh launches toward a moon while a dashboard asks if the chart moved yet.</desc>
+  <rect width="600" height="400" rx="28" fill="#11243a"/>
+  <circle cx="494" cy="86" r="54" fill="#ffe8a3"/>
+  <circle cx="474" cy="68" r="50" fill="#11243a"/>
+  <circle cx="82" cy="72" r="4" fill="#f9faf7"/>
+  <circle cx="147" cy="128" r="3" fill="#f9faf7"/>
+  <circle cx="245" cy="66" r="5" fill="#f9faf7"/>
+  <circle cx="392" cy="152" r="4" fill="#f9faf7"/>
+  <rect x="64" y="210" width="210" height="112" rx="18" fill="#ffffff" stroke="#0b1825" stroke-width="5"/>
+  <text x="169" y="248" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="800" fill="#24362f">DID IT MOVE?</text>
+  <path d="M96 286c38-28 66 15 102-16 18-16 33-16 50 2" fill="none" stroke="#46a47d" stroke-width="10" stroke-linecap="round"/>
+  <path d="M332 222l55-111 78 88-78 38z" fill="#ffffff" stroke="#0b1825" stroke-width="6" stroke-linejoin="round"/>
+  <circle cx="398" cy="173" r="17" fill="#8ed8ff" stroke="#0b1825" stroke-width="5"/>
+  <path d="M385 238l-32 58 65-39z" fill="#ffb84d" stroke="#0b1825" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M328 256c-38 24-63 52-78 84 43-8 76-28 103-62" fill="#ff6b4a"/>
+  <text x="401" y="218" transform="rotate(-18 401 218)" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" fill="#24362f">REFRESH</text>
+  <text x="300" y="361" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="900" fill="#f9faf7">GRAVITY, PLEASE WAIT</text>
+</svg>

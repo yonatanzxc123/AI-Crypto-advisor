@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title id="title">Market dip lifeguard meme</title>
+  <desc id="desc">A red market line dives into a pool while a lifeguard chair says risk plan.</desc>
+  <rect width="600" height="400" rx="28" fill="#fff7e8"/>
+  <rect x="78" y="205" width="444" height="114" rx="26" fill="#7dd3ff" stroke="#24362f" stroke-width="6"/>
+  <path d="M104 257c42 18 84 18 126 0 42-18 84-18 126 0 42 18 84 18 126 0" fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round"/>
+  <path d="M92 112c50-20 87-3 120 34 26 30 51 42 76 34 30-9 50-48 80-67 37-23 78 5 120 54" fill="none" stroke="#46a47d" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M383 176l63 73 39-91" fill="none" stroke="#c84f4f" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="449" cy="249" r="12" fill="#24362f"/>
+  <rect x="88" y="65" width="106" height="78" rx="15" fill="#ffffff" stroke="#24362f" stroke-width="6"/>
+  <text x="141" y="96" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="900" fill="#24362f">RISK</text>
+  <text x="141" y="122" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" fill="#46a47d">PLAN</text>
+  <path d="M121 143l-24 66M161 143l25 66" stroke="#24362f" stroke-width="6" stroke-linecap="round"/>
+  <text x="300" y="362" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="900" fill="#24362f">DIP OR DRAMA?</text>
+</svg>

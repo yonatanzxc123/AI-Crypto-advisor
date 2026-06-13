@@ -1,4 +1,4 @@
-import { LayoutDashboard, LogOut, SlidersHorizontal } from "lucide-react";
+import { LayoutDashboard, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../context/AuthContext.jsx";
@@ -24,10 +24,6 @@ export default function AppLayout({ children }) {
               <Link className="topbar-link" to="/dashboard">
                 <LayoutDashboard size={17} aria-hidden="true" />
                 Dashboard
-              </Link>
-              <Link className="topbar-link" to="/onboarding">
-                <SlidersHorizontal size={17} aria-hidden="true" />
-                Edit Preferences
               </Link>
               <span className="user-pill">{currentUser.name}</span>
               <button className="icon-text-button" type="button" onClick={handleLogout}>

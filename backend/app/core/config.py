@@ -1,4 +1,11 @@
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+
+BACKEND_DIR = Path(__file__).resolve().parents[2]
+load_dotenv(BACKEND_DIR / ".env", override=False)
 
 
 def _get_int_env(name: str, default: int) -> int:
@@ -20,7 +27,7 @@ class Settings:
     SECRET_KEY: str = os.getenv("SECRET_KEY", "local-development-secret-change-me")
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = _get_int_env("ACCESS_TOKEN_EXPIRE_MINUTES", 60)
-    EXTERNAL_API_TIMEOUT_SECONDS: int = _get_int_env("EXTERNAL_API_TIMEOUT_SECONDS", 5)
+    EXTERNAL_API_TIMEOUT_SECONDS: int = _get_int_env("EXTERNAL_API_TIMEOUT_SECONDS", 10)
     COINGECKO_SIMPLE_PRICE_URL: str = os.getenv(
         "COINGECKO_SIMPLE_PRICE_URL",
         "https://api.coingecko.com/api/v3/simple/price",

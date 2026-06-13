@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title id="title">HODL strategy deck meme</title>
+  <desc id="desc">A calm investor presents a very large HODL strategy deck while red candles fall behind them.</desc>
+  <rect width="600" height="400" rx="28" fill="#f8f1e7"/>
+  <rect x="36" y="42" width="528" height="292" rx="28" fill="#fffdf8" stroke="#24362f" stroke-width="6"/>
+  <path d="M82 114h372M82 174h372M82 234h372" stroke="#e7eee3" stroke-width="10" stroke-linecap="round"/>
+  <path d="M96 96l52 35 54-22 54 70 56-18 52 62 64-92" fill="none" stroke="#c84f4f" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="398" y="82" width="112" height="158" rx="16" fill="#ffffff" stroke="#24362f" stroke-width="5"/>
+  <path d="M418 118h72M418 148h72M418 178h52" stroke="#d3ddd6" stroke-width="8" stroke-linecap="round"/>
+  <text x="454" y="223" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="800" fill="#46a47d">SLIDE 200</text>
+  <circle cx="190" cy="282" r="38" fill="#f2bc8d" stroke="#24362f" stroke-width="6"/>
+  <path d="M145 337c6-43 85-43 91 0" fill="#46a47d" stroke="#24362f" stroke-width="6"/>
+  <path d="M176 276h28" stroke="#24362f" stroke-width="6" stroke-linecap="round"/>
+  <path d="M177 297c10 7 20 7 30 0" fill="none" stroke="#24362f" stroke-width="5" stroke-linecap="round"/>
+  <rect x="255" y="260" width="202" height="82" rx="18" fill="#ffd166" stroke="#24362f" stroke-width="6"/>
+  <text x="356" y="315" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="900" fill="#24362f">HODL?</text>
+  <path d="M221 304l40-16M221 316l40 12" stroke="#24362f" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="78" cy="75" r="18" fill="#ffd166" stroke="#24362f" stroke-width="5"/>
+</svg>

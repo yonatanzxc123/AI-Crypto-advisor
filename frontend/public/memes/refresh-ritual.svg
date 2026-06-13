@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title id="title">Dashboard refresh ritual meme</title>
+  <desc id="desc">A dashboard refresh button sits beside a calm breathing checklist and a small chart.</desc>
+  <rect width="600" height="400" rx="28" fill="#eef7f1"/>
+  <rect x="62" y="66" width="476" height="250" rx="26" fill="#ffffff" stroke="#24362f" stroke-width="6"/>
+  <rect x="96" y="112" width="170" height="82" rx="18" fill="#46a47d" stroke="#24362f" stroke-width="6"/>
+  <text x="181" y="163" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900" fill="#ffffff">REFRESH</text>
+  <path d="M307 123h169M307 165h128M307 207h158" stroke="#d8e2d2" stroke-width="11" stroke-linecap="round"/>
+  <circle cx="284" cy="123" r="10" fill="#ffd166" stroke="#24362f" stroke-width="5"/>
+  <circle cx="284" cy="165" r="10" fill="#ffd166" stroke="#24362f" stroke-width="5"/>
+  <circle cx="284" cy="207" r="10" fill="#ffd166" stroke="#24362f" stroke-width="5"/>
+  <path d="M111 250c42-30 79 33 126-8 26-23 48-20 72 6 42 44 79-12 121 18" fill="none" stroke="#46a47d" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M130 325c30 22 60 22 90 0M380 325c30 22 60 22 90 0" stroke="#24362f" stroke-width="7" stroke-linecap="round"/>
+  <text x="300" y="361" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900" fill="#24362f">BREATHE, THEN CLICK</text>
+</svg>

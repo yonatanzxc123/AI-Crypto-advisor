@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title id="title">Tiny candle chart drama meme</title>
+  <desc id="desc">A tiny candlestick move triggers a huge emergency meeting speech bubble.</desc>
+  <rect width="600" height="400" rx="28" fill="#f3f8f6"/>
+  <rect x="54" y="72" width="316" height="216" rx="24" fill="#ffffff" stroke="#24362f" stroke-width="6"/>
+  <path d="M98 244h230M98 190h230M98 136h230" stroke="#e2ebe5" stroke-width="8" stroke-linecap="round"/>
+  <rect x="120" y="164" width="24" height="58" rx="6" fill="#46a47d" stroke="#24362f" stroke-width="5"/>
+  <path d="M132 145v96" stroke="#24362f" stroke-width="5" stroke-linecap="round"/>
+  <rect x="178" y="150" width="24" height="76" rx="6" fill="#c84f4f" stroke="#24362f" stroke-width="5"/>
+  <path d="M190 130v116" stroke="#24362f" stroke-width="5" stroke-linecap="round"/>
+  <rect x="236" y="170" width="24" height="44" rx="6" fill="#46a47d" stroke="#24362f" stroke-width="5"/>
+  <path d="M248 153v82" stroke="#24362f" stroke-width="5" stroke-linecap="round"/>
+  <rect x="294" y="168" width="16" height="12" rx="4" fill="#ffd166" stroke="#24362f" stroke-width="4"/>
+  <path d="M302 154v40" stroke="#24362f" stroke-width="4" stroke-linecap="round"/>
+  <path d="M392 77h128c24 0 42 18 42 40v82c0 22-18 40-42 40h-54l-45 43 13-43h-42c-24 0-42-18-42-40v-82c0-22 18-40 42-40z" fill="#fffdf8" stroke="#24362f" stroke-width="6" stroke-linejoin="round"/>
+  <text x="456" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="900" fill="#c84f4f">EMERGENCY</text>
+  <text x="456" y="165" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="900" fill="#24362f">MEETING</text>
+  <text x="456" y="202" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="900" fill="#46a47d">move: 0.3%</text>
+  <text x="300" y="350" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="900" fill="#24362f">CANDLE DRAMA</text>
+</svg>

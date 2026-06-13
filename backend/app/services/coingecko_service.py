@@ -1,16 +1,20 @@
+from datetime import datetime, timezone
+
 import httpx
 
 from app.core.config import settings
 from app.schemas.dashboard_schema import PriceItemResponse
 
 
-STATIC_PRICE_FALLBACKS = {
-    "bitcoin": {"symbol": "BTC", "price_usd": 65000.0, "change_24h": 1.25},
-    "ethereum": {"symbol": "ETH", "price_usd": 3500.0, "change_24h": 0.85},
-    "solana": {"symbol": "SOL", "price_usd": 150.0, "change_24h": 2.1},
-    "dogecoin": {"symbol": "DOGE", "price_usd": 0.15, "change_24h": -0.4},
-    "cardano": {"symbol": "ADA", "price_usd": 0.45, "change_24h": 0.3},
+KNOWN_COIN_SYMBOLS = {
+    "bitcoin": "BTC",
+    "ethereum": "ETH",
+    "solana": "SOL",
+    "dogecoin": "DOGE",
+    "cardano": "ADA",
 }
+
+_PRICE_CACHE: dict[tuple[str, ...], list[PriceItemResponse]] = {}
 
 
 def get_coin_prices(assets: list[str]) -> list[PriceItemResponse]:
@@ -19,13 +23,34 @@ def get_coin_prices(assets: list[str]) -> list[PriceItemResponse]:
     if not coin_ids:
         return []
 
-    try:
-        api_prices = _fetch_prices_from_coingecko(coin_ids)
-        return _merge_api_prices_with_fallbacks(coin_ids, api_prices)
-    except (httpx.HTTPError, ValueError, KeyError):
-        pass
+    cache_key = tuple(coin_ids)
 
-    return _get_fallback_prices(coin_ids)
+    try:
+        prices = _fetch_prices_with_retry(coin_ids)
+        _cache_successful_prices(cache_key, prices)
+        return prices
+    except (httpx.HTTPError, ValueError, KeyError, TypeError):
+        cached_prices = _get_cached_prices(cache_key)
+
+        if cached_prices:
+            return cached_prices
+
+    return [_build_unavailable_price(coin_id) for coin_id in coin_ids]
+
+
+def _fetch_prices_with_retry(coin_ids: list[str]) -> list[PriceItemResponse]:
+    last_error: Exception | None = None
+
+    for _ in range(2):
+        try:
+            return _fetch_prices_from_coingecko(coin_ids)
+        except (httpx.HTTPError, ValueError, KeyError, TypeError) as exc:
+            last_error = exc
+
+    if last_error:
+        raise last_error
+
+    raise ValueError("CoinGecko price fetch failed")
 
 
 def _fetch_prices_from_coingecko(coin_ids: list[str]) -> list[PriceItemResponse]:
@@ -35,6 +60,7 @@ def _fetch_prices_from_coingecko(coin_ids: list[str]) -> list[PriceItemResponse]
             "ids": ",".join(coin_ids),
             "vs_currencies": "usd",
             "include_24hr_change": "true",
+            "include_last_updated_at": "true",
         },
         timeout=settings.EXTERNAL_API_TIMEOUT_SECONDS,
     )
@@ -42,46 +68,62 @@ def _fetch_prices_from_coingecko(coin_ids: list[str]) -> list[PriceItemResponse]
     data = response.json()
 
     return [
-        PriceItemResponse(
-            coin_id=coin_id,
-            symbol=_get_symbol(coin_id),
-            price_usd=float(data[coin_id]["usd"]),
-            change_24h=_get_change_24h(data[coin_id]),
-            item_key=f"price-{coin_id}",
-        )
-        for coin_id in coin_ids
+        _build_live_price(coin_id, data[coin_id])
         if coin_id in data and "usd" in data[coin_id]
-    ]
-
-
-def _get_fallback_prices(coin_ids: list[str]) -> list[PriceItemResponse]:
-    return [_build_fallback_price(coin_id) for coin_id in coin_ids]
-
-
-def _merge_api_prices_with_fallbacks(
-    coin_ids: list[str],
-    api_prices: list[PriceItemResponse],
-) -> list[PriceItemResponse]:
-    api_prices_by_coin_id = {price.coin_id: price for price in api_prices}
-
-    return [
-        api_prices_by_coin_id.get(coin_id) or _build_fallback_price(coin_id)
+        else _build_unavailable_price(coin_id)
         for coin_id in coin_ids
     ]
 
 
-def _build_fallback_price(coin_id: str) -> PriceItemResponse:
-    fallback = STATIC_PRICE_FALLBACKS.get(
-        coin_id,
-        {"symbol": coin_id[:4].upper(), "price_usd": 0.0, "change_24h": None},
-    )
-
+def _build_live_price(coin_id: str, coin_data: dict) -> PriceItemResponse:
     return PriceItemResponse(
         coin_id=coin_id,
-        symbol=fallback["symbol"],
-        price_usd=float(fallback["price_usd"]),
-        change_24h=fallback["change_24h"],
+        symbol=_get_symbol(coin_id),
+        price_usd=float(coin_data["usd"]),
+        change_24h=_get_change_24h(coin_data),
+        source="coingecko",
+        last_updated_at=_get_last_updated_at(coin_data),
         item_key=f"price-{coin_id}",
+    )
+
+
+def _build_unavailable_price(coin_id: str) -> PriceItemResponse:
+    return PriceItemResponse(
+        coin_id=coin_id,
+        symbol=_get_symbol(coin_id),
+        price_usd=None,
+        change_24h=None,
+        source="unavailable",
+        last_updated_at=None,
+        item_key=f"price-{coin_id}",
+    )
+
+
+def _cache_successful_prices(cache_key: tuple[str, ...], prices: list[PriceItemResponse]) -> None:
+    if any(price.source == "coingecko" for price in prices):
+        _PRICE_CACHE[cache_key] = prices
+
+
+def _get_cached_prices(cache_key: tuple[str, ...]) -> list[PriceItemResponse]:
+    cached_prices = _PRICE_CACHE.get(cache_key)
+
+    if not cached_prices:
+        return []
+
+    return [_copy_price_for_cached_response(price) for price in cached_prices]
+
+
+def _copy_price_for_cached_response(price: PriceItemResponse) -> PriceItemResponse:
+    source = "coingecko-cached" if price.source == "coingecko" else price.source
+
+    return PriceItemResponse(
+        coin_id=price.coin_id,
+        symbol=price.symbol,
+        price_usd=price.price_usd,
+        change_24h=price.change_24h,
+        source=source,
+        last_updated_at=price.last_updated_at,
+        item_key=price.item_key,
     )
 
 
@@ -94,13 +136,17 @@ def _get_change_24h(coin_data: dict) -> float | None:
     return float(change)
 
 
+def _get_last_updated_at(coin_data: dict) -> datetime | None:
+    timestamp = coin_data.get("last_updated_at")
+
+    if timestamp is None:
+        return None
+
+    return datetime.fromtimestamp(int(timestamp), tz=timezone.utc)
+
+
 def _get_symbol(coin_id: str) -> str:
-    fallback = STATIC_PRICE_FALLBACKS.get(coin_id)
-
-    if fallback:
-        return fallback["symbol"]
-
-    return coin_id[:4].upper()
+    return KNOWN_COIN_SYMBOLS.get(coin_id, coin_id[:4].upper())
 
 
 def _normalize_assets(assets: list[str]) -> list[str]:

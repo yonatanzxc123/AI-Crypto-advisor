@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 from pydantic import BaseModel
 
 
@@ -12,8 +14,10 @@ class DashboardProfileResponse(BaseModel):
 class PriceItemResponse(BaseModel):
     coin_id: str
     symbol: str
-    price_usd: float
+    price_usd: float | None
     change_24h: float | None
+    source: str
+    last_updated_at: datetime | None = None
     item_key: str
 
 
@@ -30,6 +34,9 @@ class AiInsightResponse(BaseModel):
     title: str
     content: str
     model: str
+    source: str
+    fallback_reason: str | None = None
+    generated_for_date: date
     item_key: str
 
 
@@ -37,6 +44,7 @@ class MemeResponse(BaseModel):
     title: str
     image_url: str
     caption: str
+    source: str
     item_key: str
 
 

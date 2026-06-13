@@ -26,6 +26,7 @@ def get_today_dashboard(db: Session, current_user: User) -> DashboardResponse:
         content_types=preference_response.content_types,
     )
 
+    # Dashboard source contract: CoinGecko prices, static MVP news, optional OpenRouter AI, local meme assets.
     return DashboardResponse(
         profile=profile,
         prices=coingecko_service.get_coin_prices(preference_response.assets),

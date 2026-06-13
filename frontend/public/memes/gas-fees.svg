@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" role="img" aria-labelledby="title desc">
+  <title id="title">Gas fee restaurant bill meme</title>
+  <desc id="desc">A restaurant-style receipt shows a tiny trade and a very large network tip.</desc>
+  <rect width="600" height="400" rx="28" fill="#eef7f1"/>
+  <rect x="54" y="72" width="156" height="210" rx="20" fill="#ffffff" stroke="#24362f" stroke-width="6"/>
+  <ellipse cx="132" cy="283" rx="60" ry="18" fill="#ffd166" stroke="#24362f" stroke-width="5"/>
+  <text x="132" y="136" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="22" font-weight="900" fill="#24362f">TRADE</text>
+  <text x="132" y="180" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="900" fill="#46a47d">$12</text>
+  <path d="M264 46h246v304l-31-18-31 18-31-18-31 18-31-18-31 18-30-18-30 18z" fill="#fffdf8" stroke="#24362f" stroke-width="6" stroke-linejoin="round"/>
+  <text x="387" y="99" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900" fill="#24362f">NETWORK BILL</text>
+  <path d="M304 140h164M304 178h164M304 216h120" stroke="#a8b8ae" stroke-width="9" stroke-linecap="round"/>
+  <text x="387" y="266" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="900" fill="#c84f4f">TIP: YES</text>
+  <text x="387" y="306" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="900" fill="#c84f4f">TOTAL: OOF</text>
+  <path d="M235 184c22 0 33 30 15 45-19 16-54-4-44-31 4-10 13-14 29-14z" fill="#ff8f5a" stroke="#24362f" stroke-width="6"/>
+  <path d="M229 202c8 5 12 12 9 22" fill="none" stroke="#ffd166" stroke-width="7" stroke-linecap="round"/>
+</svg>
