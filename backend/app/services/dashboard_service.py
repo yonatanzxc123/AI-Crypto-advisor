@@ -35,6 +35,8 @@ def get_today_dashboard(db: Session, current_user: User) -> DashboardResponse:
             investor_type=preference_response.investor_type,
             assets=preference_response.assets,
             content_types=preference_response.content_types,
+            db=db,
+            user_id=current_user.id,
         ),
         meme=meme_service.get_crypto_meme(),
     )

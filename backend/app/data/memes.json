@@ -1,0 +1,66 @@
+[
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/hodl.svg",
+    "caption": "Portfolio down 2%, conviction presentation up 200 slides.",
+    "source": "static-json",
+    "item_key": "meme-hodl",
+    "tags": ["hodl", "market dip"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/to-the-moon.svg",
+    "caption": "Refreshing the chart until gravity negotiates.",
+    "source": "static-json",
+    "item_key": "meme-to-the-moon",
+    "tags": ["charts", "refresh"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/gas-fees.svg",
+    "caption": "Buying the dip, then tipping the network like a five-star restaurant.",
+    "source": "static-json",
+    "item_key": "meme-gas-fees",
+    "tags": ["fees", "network"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/diamond-hands.svg",
+    "caption": "Emotionally diversified: 90% patience, 10% dramatic chart staring.",
+    "source": "static-json",
+    "item_key": "meme-diamond-hands",
+    "tags": ["patience", "risk"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/market-dip.svg",
+    "caption": "The chart called it a dip. My watchlist called it a personality test.",
+    "source": "static-json",
+    "item_key": "meme-market-dip",
+    "tags": ["volatility", "watchlist"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/chart-drama.svg",
+    "caption": "One tiny candle moved and the group chat opened an emergency room.",
+    "source": "static-json",
+    "item_key": "meme-chart-drama",
+    "tags": ["candles", "sentiment"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/seed-phrase.svg",
+    "caption": "Security plan: less sticky note, more responsible adult energy.",
+    "source": "static-json",
+    "item_key": "meme-seed-phrase",
+    "tags": ["security", "education"]
+  },
+  {
+    "title": "Crypto Meme",
+    "image_url": "/memes/refresh-ritual.svg",
+    "caption": "Daily ritual: refresh dashboard, breathe, remember it is educational.",
+    "source": "static-json",
+    "item_key": "meme-refresh-ritual",
+    "tags": ["daily", "dashboard"]
+  }
+]

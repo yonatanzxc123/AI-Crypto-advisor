@@ -480,6 +480,17 @@ select:focus {
   font-weight: 800;
 }
 
+.source-badge.live {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-text);
+}
+
+.source-badge.cached,
+.source-badge.fallback {
+  background: var(--color-warning-soft);
+  color: #7a4b13;
+}
+
 .source-time {
   margin-top: 0.25rem;
   font-size: 0.82rem;
@@ -536,8 +547,22 @@ select:focus {
 }
 
 .insight-text {
+  max-width: 68ch;
   margin-bottom: 0;
   color: #344339;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.insight-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
 .meme {

@@ -12,6 +12,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.core.config import settings
 from app.db.database import Base, get_db
+from app.db.models import DailyAiInsight, User
 from app.main import app
 from app.schemas.dashboard_schema import AiInsightResponse, MemeResponse, PriceItemResponse
 from app.services import ai_service, coingecko_service, meme_service
@@ -108,7 +109,7 @@ def mock_dashboard_helpers(monkeypatch) -> None:
             title="Crypto Meme",
             image_url="/memes/test.svg",
             caption="Test meme caption",
-            source="local-static",
+            source="static-json",
             item_key="meme-test",
         ),
     )
@@ -353,6 +354,203 @@ def test_openrouter_success_uses_daily_cache(monkeypatch) -> None:
     assert second == first
 
 
+def test_dashboard_caches_successful_openrouter_insight(monkeypatch) -> None:
+    calls = {"count": 0}
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "## Daily Insight\n"
+                                "**Bitcoin** can move quickly 🚀, but a HODLer should compare "
+                                "short-term price action with liquidity, fees, and broader market context "
+                                "before reacting. This is educational only and not financial advice."
+                            ),
+                        }
+                    }
+                ]
+            }
+
+    def fake_prices(assets: list[str]) -> list[PriceItemResponse]:
+        return [
+            PriceItemResponse(
+                coin_id=asset,
+                symbol=asset[:4].upper(),
+                price_usd=100.0,
+                change_24h=1.0,
+                source="coingecko",
+                last_updated_at=None,
+                item_key=f"price-{asset}",
+            )
+            for asset in assets
+        ]
+
+    def fake_post(*args, **kwargs):
+        calls["count"] += 1
+        return FakeResponse()
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", fake_post)
+    monkeypatch.setattr(coingecko_service, "get_coin_prices", fake_prices)
+
+    headers = create_onboarded_user()
+    first_response = client.get("/dashboard/today", headers=headers)
+    second_response = client.get("/dashboard/today", headers=headers)
+
+    first_insight = first_response.json()["ai_insight"]
+    second_insight = second_response.json()["ai_insight"]
+    db = TestingSessionLocal()
+
+    try:
+        saved_insight_count = db.query(DailyAiInsight).count()
+    finally:
+        db.close()
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert calls["count"] == 1
+    assert saved_insight_count == 1
+    assert first_insight["source"] == "openrouter"
+    assert second_insight["source"] == "cached-openrouter"
+    assert "**" not in first_insight["content"]
+    assert "🚀" not in first_insight["content"]
+    assert not first_insight["content"].lower().startswith("daily insight")
+    assert "not financial advice" in first_insight["content"].lower()
+
+
+def test_valid_cached_openrouter_content_is_returned_without_api_call(monkeypatch) -> None:
+    fixed_date = date(2026, 6, 14)
+
+    def fail_if_called(*args, **kwargs):
+        raise AssertionError("OpenRouter should not be called when valid cache exists")
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", fail_if_called)
+
+    create_onboarded_user()
+    db = TestingSessionLocal()
+
+    try:
+        user_id = db.query(User).filter(User.email == "user@example.com").first().id
+        preferences_hash = ai_service._build_preferences_hash(
+            investor_type="HODLer",
+            assets=["bitcoin"],
+            content_types=["AI Insight"],
+        )
+        db.add(
+            DailyAiInsight(
+                user_id=user_id,
+                generated_for_date=fixed_date,
+                preferences_hash=preferences_hash,
+                content=(
+                    "Bitcoin can help a HODLer compare short-term market noise with broader "
+                    "liquidity and network context. This is educational only and not financial advice."
+                ),
+                model="openrouter/free",
+                source="openrouter",
+            )
+        )
+        db.commit()
+
+        insight = ai_service.get_ai_insight(
+            investor_type="HODLer",
+            assets=["bitcoin"],
+            content_types=["AI Insight"],
+            today=fixed_date,
+            db=db,
+            user_id=user_id,
+        )
+    finally:
+        db.close()
+
+    assert insight.source == "cached-openrouter"
+    assert insight.content.startswith("Bitcoin can help")
+    assert insight.fallback_reason is None
+
+
+def test_prompt_like_cached_today_insight_is_deleted_and_openrouter_retried(monkeypatch) -> None:
+    fixed_date = date(2026, 6, 14)
+    calls = {"count": 0}
+
+    class SuccessResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "Bitcoin can help a HODLer compare a quick price move with liquidity, "
+                                "fees, and broader market context before reacting. This is educational "
+                                "only and not financial advice."
+                            ),
+                        }
+                    }
+                ]
+            }
+
+    def fake_post(*args, **kwargs):
+        calls["count"] += 1
+        return SuccessResponse()
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", fake_post)
+
+    create_onboarded_user()
+    db = TestingSessionLocal()
+
+    try:
+        user_id = db.query(User).filter(User.email == "user@example.com").first().id
+        preferences_hash = ai_service._build_preferences_hash(
+            investor_type="HODLer",
+            assets=["bitcoin"],
+            content_types=["AI Insight"],
+        )
+        db.add(
+            DailyAiInsight(
+                user_id=user_id,
+                generated_for_date=fixed_date,
+                preferences_hash=preferences_hash,
+                content=(
+                    "We need to produce a daily educational crypto insight. Must be plain text. "
+                    "Must not give buy, sell, or price prediction recommendations. Word count: 80-120 words."
+                ),
+                model="openrouter/free",
+                source="openrouter",
+            )
+        )
+        db.commit()
+
+        insight = ai_service.get_ai_insight(
+            investor_type="HODLer",
+            assets=["bitcoin"],
+            content_types=["AI Insight"],
+            today=fixed_date,
+            db=db,
+            user_id=user_id,
+        )
+        saved_insights = db.query(DailyAiInsight).all()
+    finally:
+        db.close()
+
+    assert calls["count"] == 1
+    assert insight.source == "openrouter"
+    assert "We need to produce" not in insight.content
+    assert len(saved_insights) == 1
+    assert "We need to produce" not in saved_insights[0].content
+
+
 def test_openrouter_null_content_returns_empty_response_fallback(monkeypatch) -> None:
     fixed_date = date(2026, 6, 13)
 
@@ -432,6 +630,68 @@ def test_openrouter_failure_returns_static_fallback(monkeypatch) -> None:
     assert insight.item_key == "ai-insight-2026-06-13"
 
 
+def test_openrouter_failure_returns_previous_successful_insight(monkeypatch) -> None:
+    class SuccessResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "Ethereum activity can help a Beginner connect market movement with "
+                                "network usage and developer momentum. This is educational only and not "
+                                "financial advice."
+                            ),
+                        }
+                    }
+                ]
+            }
+
+    def success_post(*args, **kwargs):
+        return SuccessResponse()
+
+    def failing_post(*args, **kwargs):
+        raise httpx.TimeoutException("OpenRouter timed out")
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", success_post)
+
+    create_onboarded_user()
+    db = TestingSessionLocal()
+
+    try:
+        user_id = db.query(User).filter(User.email == "user@example.com").first().id
+        previous = ai_service.get_ai_insight(
+            investor_type="Beginner",
+            assets=["ethereum"],
+            content_types=["AI Insight"],
+            today=date(2026, 6, 13),
+            db=db,
+            user_id=user_id,
+        )
+
+        monkeypatch.setattr(ai_service.httpx, "post", failing_post)
+        current = ai_service.get_ai_insight(
+            investor_type="Beginner",
+            assets=["ethereum"],
+            content_types=["AI Insight"],
+            today=date(2026, 6, 14),
+            db=db,
+            user_id=user_id,
+        )
+    finally:
+        db.close()
+
+    assert previous.source == "openrouter"
+    assert current.source == "cached-openrouter"
+    assert current.fallback_reason == "using_previous_success"
+    assert current.content == previous.content
+
+
 def test_dashboard_uses_ai_fallback_when_openrouter_response_is_empty(monkeypatch) -> None:
     class FakeResponse:
         def raise_for_status(self) -> None:
@@ -465,6 +725,146 @@ def test_dashboard_uses_ai_fallback_when_openrouter_response_is_empty(monkeypatc
     assert response.status_code == 200
     assert response.json()["ai_insight"]["source"] == "static-fallback"
     assert response.json()["ai_insight"]["fallback_reason"] == "empty_response"
+
+
+def test_repeated_dashboard_call_after_failure_retries_openrouter(monkeypatch) -> None:
+    calls = {"count": 0}
+
+    class SuccessResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "Bitcoin can help a HODLer practice comparing market movement with "
+                                "network context before reacting to short-term noise. This is "
+                                "educational only and not financial advice."
+                            ),
+                        }
+                    }
+                ]
+            }
+
+    def fake_prices(assets: list[str]) -> list[PriceItemResponse]:
+        return [
+            PriceItemResponse(
+                coin_id=asset,
+                symbol=asset[:4].upper(),
+                price_usd=100.0,
+                change_24h=1.0,
+                source="coingecko",
+                last_updated_at=None,
+                item_key=f"price-{asset}",
+            )
+            for asset in assets
+        ]
+
+    def fake_post(*args, **kwargs):
+        calls["count"] += 1
+
+        if calls["count"] <= 2:
+            raise httpx.TimeoutException("OpenRouter timed out")
+
+        return SuccessResponse()
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", fake_post)
+    monkeypatch.setattr(coingecko_service, "get_coin_prices", fake_prices)
+
+    headers = create_onboarded_user()
+    first_response = client.get("/dashboard/today", headers=headers)
+    second_response = client.get("/dashboard/today", headers=headers)
+
+    assert first_response.status_code == 200
+    assert second_response.status_code == 200
+    assert first_response.json()["ai_insight"]["source"] == "static-fallback"
+    assert first_response.json()["ai_insight"]["fallback_reason"] == "api_request_failed"
+    assert second_response.json()["ai_insight"]["source"] == "openrouter"
+    assert second_response.json()["ai_insight"]["fallback_reason"] is None
+    assert calls["count"] == 3
+
+
+def test_static_ai_fallback_is_not_saved_as_successful_cache(monkeypatch) -> None:
+    def fake_post(*args, **kwargs):
+        raise httpx.TimeoutException("OpenRouter timed out")
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", fake_post)
+
+    create_onboarded_user()
+    db = TestingSessionLocal()
+
+    try:
+        user_id = db.query(User).filter(User.email == "user@example.com").first().id
+        insight = ai_service.get_ai_insight(
+            investor_type="HODLer",
+            assets=["bitcoin"],
+            content_types=["AI Insight"],
+            today=date(2026, 6, 13),
+            db=db,
+            user_id=user_id,
+        )
+        saved_insight_count = db.query(DailyAiInsight).count()
+    finally:
+        db.close()
+
+    assert insight.source == "static-fallback"
+    assert saved_insight_count == 0
+
+
+def test_prompt_echo_openrouter_response_is_treated_as_empty(monkeypatch) -> None:
+    fixed_date = date(2026, 6, 13)
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                "We need to produce a daily educational crypto insight for a beginner. "
+                                "Must be plain text, no markdown, headings, bullets, emojis, or "
+                                "decorative symbols. Word count: 80-120 words."
+                            ),
+                        }
+                    }
+                ]
+            }
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "OPENROUTER_MODEL", "openrouter/free")
+    monkeypatch.setattr(ai_service.httpx, "post", lambda *args, **kwargs: FakeResponse())
+
+    create_onboarded_user()
+    db = TestingSessionLocal()
+
+    try:
+        user_id = db.query(User).filter(User.email == "user@example.com").first().id
+        insight = ai_service.get_ai_insight(
+            investor_type="Beginner",
+            assets=["bitcoin"],
+            content_types=["AI Insight"],
+            today=fixed_date,
+            db=db,
+            user_id=user_id,
+        )
+        saved_insight_count = db.query(DailyAiInsight).count()
+    finally:
+        db.close()
+
+    assert insight.source == "static-fallback"
+    assert insight.fallback_reason == "empty_response"
+    assert "We need to produce" not in insight.content
+    assert saved_insight_count == 0
 
 
 def test_ai_response_does_not_expose_api_key_or_secret(monkeypatch) -> None:
@@ -511,7 +911,7 @@ def test_meme_response_exists_and_has_item_key(monkeypatch) -> None:
     assert meme["title"] == "Crypto Meme"
     assert meme["image_url"]
     assert meme["caption"]
-    assert meme["source"] == "local-static"
+    assert meme["source"] == "static-json"
     assert meme["item_key"] == "meme-test"
 
 
@@ -520,5 +920,37 @@ def test_static_meme_uses_local_asset_path() -> None:
 
     assert meme.image_url.startswith("/memes/")
     assert meme.image_url.endswith(".svg")
-    assert meme.source == "local-static"
+    assert meme.source == "static-json"
     assert meme.item_key.startswith("meme-")
+
+
+def test_meme_service_loads_static_json_list() -> None:
+    memes = meme_service._load_static_memes()
+
+    assert len(memes) >= 8
+    assert all(meme["source"] == "static-json" for meme in memes)
+
+
+def test_dashboard_meme_response_uses_static_json(monkeypatch) -> None:
+    def fake_prices(assets: list[str]) -> list[PriceItemResponse]:
+        return [
+            PriceItemResponse(
+                coin_id=asset,
+                symbol=asset[:4].upper(),
+                price_usd=100.0,
+                change_24h=1.0,
+                source="coingecko",
+                last_updated_at=None,
+                item_key=f"price-{asset}",
+            )
+            for asset in assets
+        ]
+
+    monkeypatch.setattr(settings, "OPENROUTER_API_KEY", "")
+    monkeypatch.setattr(coingecko_service, "get_coin_prices", fake_prices)
+
+    headers = create_onboarded_user()
+    response = client.get("/dashboard/today", headers=headers)
+
+    assert response.status_code == 200
+    assert response.json()["meme"]["source"] == "static-json"

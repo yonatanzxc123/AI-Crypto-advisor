@@ -65,8 +65,8 @@ export default function Dashboard() {
     await submitFeedback(feedback);
   }
 
-  if (isLoading) {
-    return <LoadingMessage message="Loading dashboard..." />;
+  if (isLoading || isRefreshing) {
+    return <LoadingMessage message={isRefreshing ? "Refreshing dashboard..." : "Loading dashboard..."} />;
   }
 
   if (!dashboard) {
